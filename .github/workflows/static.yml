@@ -1,43 +1,175 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+# Workflow completo para deploy de conteúdo estático no GitHub Pages
+name: Deploy Completo - Static Content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
+  # Executa em pushes para a branch principal
   push:
     branches: ["main"]
+    paths:
+      - '**.js'
+      - '**.html'
+      - '**.css'
+      - '.github/workflows/static.yml'
 
-  # Allows you to run this workflow manually from the Actions tab
+  # Permite execução manual do workflow
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Permissões do GITHUB_TOKEN para deploy no GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
+  checks: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Apenas um deployment simultâneo
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
+  # Job de linting e validação
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint & Validate
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Cache de dependências
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Instalar dependências
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Executar linting (ESLint)
+        run: npm run lint --if-present
+        continue-on-error: true
+
+      - name: Validar HTML
+        run: |
+          npm install -g html-validate
+          html-validate "**/*.html" --config-file .htmlvalidate.json || true
+        continue-on-error: true
+
+      - name: Validar CSS
+        run: |
+          npm install -g stylelint stylelint-config-standard
+          stylelint "**/*.css" || true
+        continue-on-error: true
+
+  # Job de testes
+  test:
+    runs-on: ubuntu-latest
+    name: Testes
+    needs: lint
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Cache de dependências
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Instalar dependências
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Executar testes
+        run: npm test --if-present
+        continue-on-error: true
+
+      - name: Upload resultados de teste
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results
+          path: coverage/
+          retention-days: 7
+
+  # Job de build
+  build:
+    runs-on: ubuntu-latest
+    name: Build
+    needs: test
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Cache de dependências
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Instalar dependências
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Build projeto
+        run: npm run build --if-present
+
+      - name: Upload artefato de build
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifact
+          path: dist/ # Ajuste para seu diretório de saída (dist, build, public, etc)
+          retention-days: 5
+
+  # Job de deploy
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    name: Deploy para GitHub Pages
+    needs: build
     steps:
-      - name: Checkout
+      - name: Checkout código
         uses: actions/checkout@v4
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Upload artifact
+
+      - name: Download artefato de build
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifact
+          path: dist/
+
+      - name: Upload artefato para Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
+          path: 'dist/'
+
+      - name: Deploy para GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+      - name: 🎉 Deploy concluído com sucesso
+        run: |
+          echo "✅ Deploy realizado com sucesso!"
+          echo "📄 URL: ${{ steps.deployment.outputs.page_url }}"
