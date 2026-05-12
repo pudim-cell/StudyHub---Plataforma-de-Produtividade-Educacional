@@ -1,33 +1,312 @@
 <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudyHub</title>
+
+  <link rel="stylesheet" href="style.css"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
+
+    <div class="logo">
+      <h2>📚 StudyHub</h2>
+      <p>Produtividade Educacional</p>
+    </div>
+
+    <nav>
+
+      <button class="nav-btn active" data-page="dashboard">
+        📊 Dashboard
+      </button>
+
+      <button class="nav-btn" data-page="materiais">
+        📖 Materiais
+      </button>
+
+      <button class="nav-btn" data-page="trabalhos">
+        📝 Trabalhos
+      </button>
+
+      <button class="nav-btn" data-page="favoritos">
+        ⭐ Favoritos
+      </button>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <p>StudyHub © 2026</p>
+    </div>
+
+  </aside>
+
+  <!-- MAIN -->
+
+  <main class="content">
+
+    <!-- HEADER -->
+
+    <header class="main-header">
+
+      <div>
+        <h1>Bem-vindo ao StudyHub</h1>
+        <p>Organize seus estudos de forma inteligente.</p>
+      </div>
+
+      <div class="header-actions">
+
+        <input
+          type="text"
+          id="search"
+          placeholder="Buscar materiais ou trabalhos..."
+        >
+
+      </div>
+
+    </header>
+
+    <!-- DASHBOARD -->
+
+    <section id="dashboard" class="page active-page">
+
+      <div class="cards">
+
+        <div class="card">
+          <h3>📚 Materiais</h3>
+          <p id="materials-count">0</p>
+        </div>
+
+        <div class="card">
+          <h3>📝 Trabalhos</h3>
+          <p id="tasks-count">0</p>
+        </div>
+
+        <div class="card urgent">
+          <h3>⚠️ Urgentes</h3>
+          <p id="urgent-count">0</p>
+        </div>
+
+        <div class="card">
+          <h3>⭐ Favoritos</h3>
+          <p id="favorite-count">0</p>
+        </div>
+
+      </div>
+
+      <div class="dashboard-grid">
+
+        <div class="dashboard-box">
+
+          <div class="box-header">
+            <h2>📅 Próximos Trabalhos</h2>
+          </div>
+
+          <div id="upcoming-tasks"></div>
+
+        </div>
+
+        <div class="dashboard-box">
+
+          <div class="box-header">
+            <h2>⭐ Materiais Favoritos</h2>
+          </div>
+
+          <div id="favorite-materials"></div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- MATERIAIS -->
+
+    <section id="materiais" class="page">
+
+      <div class="top-section">
+
+        <div>
+          <h1>📖 Materiais de Estudo</h1>
+          <p>Gerencie seus conteúdos acadêmicos.</p>
+        </div>
+
+        <button class="add-btn" id="open-material-modal">
+          + Novo Material
+        </button>
+
+      </div>
+
+      <div class="filter-bar">
+
+        <select>
+          <option>Todas Disciplinas</option>
+          <option>Matemática</option>
+          <option>Programação Web</option>
+          <option>Banco de Dados</option>
+        </select>
+
+        <select>
+          <option>Todos Tipos</option>
+          <option>Resumo</option>
+          <option>Exercício</option>
+          <option>Prova Antiga</option>
+          <option>Anotação</option>
+        </select>
+
+      </div>
+
+      <div class="materials-grid" id="materials-list"></div>
+
+    </section>
+
+    <!-- TRABALHOS -->
+
+    <section id="trabalhos" class="page">
+
+      <div class="top-section">
+
+        <div>
+          <h1>📝 Trabalhos e Tarefas</h1>
+          <p>Controle seus prazos e entregas.</p>
+        </div>
+
+        <button class="add-btn" id="open-task-modal">
+          + Novo Trabalho
+        </button>
+
+      </div>
+
+      <div class="filter-bar">
+
+        <select>
+          <option>Todas Prioridades</option>
+          <option>Alta</option>
+          <option>Média</option>
+          <option>Baixa</option>
+        </select>
+
+        <select>
+          <option>Todos Status</option>
+          <option>Não iniciado</option>
+          <option>Em progresso</option>
+          <option>Concluído</option>
+        </select>
+
+      </div>
+
+      <div class="tasks-grid" id="tasks-list"></div>
+
+    </section>
+
+    <!-- FAVORITOS -->
+
+    <section id="favoritos" class="page">
+
+      <div class="top-section">
+
+        <div>
+          <h1>⭐ Favoritos</h1>
+          <p>Materiais importantes salvos.</p>
+        </div>
+
+      </div>
+
+      <div class="materials-grid" id="favorites-list"></div>
+
+    </section>
+
+  </main>
+
+  <!-- MODAL MATERIAL -->
+
+  <div class="modal" id="material-modal">
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h2>📖 Novo Material</h2>
+      </div>
+
+      <input
+        type="text"
+        id="material-title"
+        placeholder="Título do material"
+      >
+
+      <input
+        type="text"
+        id="material-subject"
+        placeholder="Disciplina"
+      >
+
+      <select id="material-type">
+        <option>Resumo</option>
         <option>Exercício</option>
         <option>Prova Antiga</option>
         <option>Anotação</option>
       </select>
 
-      <input type="text" id="material-tags" placeholder="Tags separadas por vírgula">
+      <input
+        type="text"
+        id="material-tags"
+        placeholder="Tags separadas por vírgula"
+      >
 
-      <label>
+      <label class="checkbox-area">
+
         <input type="checkbox" id="material-favorite">
-        Favorito
+
+        <span>Adicionar aos favoritos</span>
+
       </label>
 
-      <button id="save-material">Salvar</button>
+      <button id="save-material">
+        Salvar Material
+      </button>
 
     </div>
+
   </div>
 
-  <!-- Modal Trabalho -->
+  <!-- MODAL TRABALHO -->
 
   <div class="modal" id="task-modal">
+
     <div class="modal-content">
 
-      <h2>Novo Trabalho</h2>
+      <div class="modal-header">
+        <h2>📝 Novo Trabalho</h2>
+      </div>
 
-      <input type="text" id="task-title" placeholder="Título">
+      <input
+        type="text"
+        id="task-title"
+        placeholder="Título do trabalho"
+      >
 
-      <textarea id="task-description" placeholder="Descrição"></textarea>
+      <textarea
+        id="task-description"
+        placeholder="Descrição da tarefa"
+      ></textarea>
 
-      <input type="text" id="task-subject" placeholder="Disciplina">
+      <input
+        type="text"
+        id="task-subject"
+        placeholder="Disciplina"
+      >
 
       <input type="date" id="task-date">
 
@@ -43,11 +322,17 @@
         <option>Concluído</option>
       </select>
 
-      <button id="save-task">Salvar</button>
+      <button id="save-task">
+        Salvar Trabalho
+      </button>
 
     </div>
+
   </div>
 
+  <!-- SCRIPT -->
+
   <script src="script.js"></script>
+
 </body>
 </html>
